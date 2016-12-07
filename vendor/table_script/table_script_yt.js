@@ -304,6 +304,8 @@ $(document).ready(function(){
     $(div_page).append(div_panel_body);
     $("#details").append(div_page);
     var div_panel_heading = document.createElement("div");
+    div_panel_heading.id = page_name + "_panel_heading";
+    div_panel_heading.className = "panel-heading";
     div_panel_heading.innerHTML = page_name;
     $(div_page).append(div_panel_heading);
   }
