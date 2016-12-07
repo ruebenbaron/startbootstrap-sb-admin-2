@@ -388,8 +388,8 @@ $(document).ready(function(){
                   var table = document.getElementById("dashboard");
                   sorttable.makeSortable(table);
                   //Append Video Player To div#details:
-                  appendEmbeddedVideo(video_id, page_name+"_ytapiplayer", page_name+"_details");
-                  appendViewCount(view_count_champion, page_name+"_view_count", page_name+"_details")
+                  appendEmbeddedVideo(video_id, page_name+"_ytapiplayer", page_name + "_panel_body");
+                  appendViewCount(view_count_champion, page_name+"_view_count", page_name + "_panel_body")
                 };
               });
             };
