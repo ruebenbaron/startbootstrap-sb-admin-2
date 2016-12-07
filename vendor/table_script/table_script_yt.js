@@ -344,7 +344,7 @@ $(document).ready(function(){
         var para = document.createElement("p");
         para.id = page_name+"_view_count";
         para.innerHTML = "No Videos";
-        $("#"+page_name+"_details").append(para);
+        $("#"+page_name + "_panel_body").append(para);
       } else {
         //Get Views of first Upload.
         var video_id = uploads_since[0].contentDetails.videoId;
