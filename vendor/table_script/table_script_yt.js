@@ -297,11 +297,15 @@ $(document).ready(function(){
   function appendPageDiv(page_name) {
     var div_page = document.createElement("div");
     div_page.id = page_name + "_details";
-    div_page.className = "container";
+    div_page.className = "panel panel-default";
+    var div_panel_body = document.createElement("div");
+    div_panel_body.id = page_name + "_panel_body";
+    div_panel_body.className = "panel-body";
+    div_page.append(div_panel_body);
     $("#details").append(div_page);
-    var header = document.createElement("h2");
-    header.innerHTML = page_name;
-    $(div_page).append(header);
+    var panel_heading = document.createElement("div");
+    panel_heading.innerHTML = page_name;
+    $(div_page).append(panel_heading);
   }
   
   function appendEmbeddedVideo(video_id, element_id, parent_id) {
@@ -355,8 +359,8 @@ $(document).ready(function(){
             view_count_champion = numberWithCommas(view_count_champion);
             tableData[page_name].Most_Successful_Video_Views.innerHTML = view_count_champion;
             //Append Video Player To div#details:
-            appendEmbeddedVideo(video_id, page_name+"_ytapiplayer", page_name+"_details");
-            appendViewCount(view_count_champion, page_name+"_view_count", page_name+"_details")
+            appendEmbeddedVideo(video_id, page_name+"_ytapiplayer", page_name + "_panel_body");
+            appendViewCount(view_count_champion, page_name+"_view_count", page_name + "_panel_body")
           } else {
             //Let other Videos challenge Champion:
             for (i=1; i<num_uploads_since; i++) {
