@@ -301,11 +301,11 @@ $(document).ready(function(){
     var div_panel_body = document.createElement("div");
     div_panel_body.id = page_name + "_panel_body";
     div_panel_body.className = "panel-body";
-    div_page.append(div_panel_body);
+    $(div_page).append(div_panel_body);
     $("#details").append(div_page);
-    var panel_heading = document.createElement("div");
-    panel_heading.innerHTML = page_name;
-    $(div_page).append(panel_heading);
+    var div_panel_heading = document.createElement("div");
+    div_panel_heading.innerHTML = page_name;
+    $(div_page).append(div_panel_heading);
   }
   
   function appendEmbeddedVideo(video_id, element_id, parent_id) {
