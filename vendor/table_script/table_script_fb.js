@@ -163,7 +163,7 @@ $(document).ready(function(){
 
 
   function appendEmbeddedPost(page_name, post_permalink_url, post_id) {
-    var divPage = document.getElementById(page_name);
+    var divPage = document.getElementById(page_name+"_panel_body");
     var divPost = document.createElement("div");
     divPost.className = "fb-post";
     divPost.id = post_id;
@@ -181,25 +181,43 @@ $(document).ready(function(){
       function(response) {
         var post_date = response.created_time;
         var post_permalink_url = response.permalink_url;
-        appendParagraph(page_name, "Created on: " + post_date);
+        //appendParagraph(page_name, "Created on: " + post_date);
         appendEmbeddedPost(page_name, post_permalink_url, post_id);
       }
     );
+  }
+  
+  function appendPageDiv(page_name, post_id) {
+    var div_page = document.createElement("div");
+    div_page.id = page_name + "_details";
+    div_page.className = "panel panel-default";
+    var div_panel_heading = document.createElement("div");
+    div_panel_heading.id = page_name + "_panel_heading";
+    div_panel_heading.className = "panel-heading";
+    div_panel_heading.innerHTML = page_name;
+    $(div_page).append(div_panel_heading);
+    var div_panel_body = document.createElement("div");
+    div_panel_body.id = page_name + "_panel_body";
+    div_panel_body.className = "panel-body";
+    $(div_page).append(div_panel_body);
+    $("#details").append(div_page);
+    appendPostInfo(page_name, post_id);
   }
 
   function appendMostSuccessfulPost(page_name) {
     FB.api(
       '/' + page_name + '/posts',
       'GET',
-      {"fields":"message,likes.limit(0).summary(1)","since":sinceDate,"until":untilDate, "access_token":access_token},
+      {"fields":"likes.limit(0).summary(1)","since":sinceDate,"until":untilDate, "access_token":access_token},
       function(response) {
         var posts = response.data;
         //First champion is 0:
         var likes_count_champion = 0;
         var mostSuccessfulPostID = "";
-        //Compare succeeding posts to first post:
-        for (i=0; i<posts.length;i++){
-          if (posts[i].hasOwnProperty("likes")){
+        //Compare posts to champion:
+        for (var i=0; i<posts.length;i++){
+          //If Post has Likes:
+          if (posts[i].hasOwnProperty("likes")) {
             var likes_count_challenger = posts[i].likes.summary.total_count;
             if (likes_count_challenger > likes_count_champion){
               likes_count_champion = likes_count_challenger;
@@ -207,8 +225,7 @@ $(document).ready(function(){
             };
           }
         };
-        appendParagraph(page_name, "Most Successful Post-ID: " + mostSuccessfulPostID + " (" + numberWithCommas(likes_count_champion) + " likes)");
-        appendPostInfo(page_name, mostSuccessfulPostID);
+        appendPageDiv(page_name, mostSuccessfulPostID);
       }
     );
   }
@@ -388,10 +405,12 @@ $(document).ready(function(){
               //console.log(response.authResponse.accessToken);
               var access_token = response.authResponse.accessToken;
               for (i = 0; i < wettbewerber.length - 1; i++) {
+                /*
                 createPageDiv(wettbewerber[i]);
                 appendHeader(wettbewerber[i], wettbewerber[i]);
                 appendFanCount(wettbewerber[i]);
                 appendPostCount(wettbewerber[i]);
+                */
                 appendMostSuccessfulPost(wettbewerber[i]);
                 fillPage(wettbewerber[i], tableData);
                 fillFanCount(wettbewerber[i], tableData);
@@ -426,10 +445,12 @@ $(document).ready(function(){
                     tableData[new_input] = tableData["new_competitor"];
                     delete tableData["new_competitor"]
                     //Call Facebook Functions for last wettbewerber
+                    /*
                     createPageDiv(wettbewerber[wettbewerber.length-1]);
                     appendHeader(wettbewerber[wettbewerber.length-1], wettbewerber[wettbewerber.length-1]);
                     appendFanCount(wettbewerber[wettbewerber.length-1]);
                     appendPostCount(wettbewerber[wettbewerber.length-1]);
+                    */
                     appendMostSuccessfulPost(wettbewerber[wettbewerber.length-1]);
                     fillPage(wettbewerber[wettbewerber.length-1], tableData);
                     fillFanCount(wettbewerber[wettbewerber.length-1], tableData);
