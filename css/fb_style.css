@@ -1,0 +1,37 @@
+#details {
+  display: none;
+}
+
+th {
+  text-align: center;
+}
+
+.number {
+  text-align: right;
+}
+
+input {
+	display: block;
+	padding: 0; 
+	margin: 0; 
+	border: 0; 
+	width: 100%;
+}
+
+tbody tr:nth-child(n):hover {
+  background-color: #70B3FF;
+  color: #fff;
+}
+
+.vwfsde {
+	border-color: #405893;
+  	background-color: #4862A3;
+  	color: #fff;
+}
+
+.fb-post span, .fb-post iframe {
+  min-width: 700px !important;
+  max-width: 1000px !important;
+  min-height: 700px !important;
+  max-height: 1000px !important;
+}
