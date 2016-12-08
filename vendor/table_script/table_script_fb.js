@@ -369,6 +369,88 @@ $(document).ready(function(){
     );
   }
   
+  function changeTDData (wettbewerber, kriterien, tableData, new_input) {
+    //Change td.ids to last wettbewerber
+    for (x=0; x<kriterien.length; x++) {
+      var td = tableData["new_competitor"][kriterien[x]]
+      //Set Input Text As last wettbewerber:
+      wettbewerber[wettbewerber.length-1] = new_input
+      td.id = new_input + "_" + kriterien[x];
+      td.className = new_input + " " + kriterien[x];
+      if(x>0){
+        td.className += " number";
+      }
+    }
+  }
+  
+  function appendNewInuptTRtoTBODY (wettbewerber, kriterien, tableData, new_input) {
+    //Append every td tfoot to new tr:
+    var new_tr = document.createElement("tr");
+    new_tr.id = wettbewerber.length + "_new";
+    for (x=0; x<kriterien.length; x++) {
+      var new_td = tableData[new_input][kriterien[x]];
+      new_tr.appendChild(new_td);
+      tableData[new_input][kriterien[x]] = new_td;
+    }
+    //Append new tr to tbody
+    var tbody = document.getElementById("tbody");
+    tbody.appendChild(new_tr);
+    //Delete old tr from tfoot
+    var old_tr = document.getElementById(wettbewerber.length)
+    old_tr.parentNode.removeChild(old_tr);
+    //Correct id of new tr
+    new_tr.id = wettbewerber.length
+  }
+  
+  function appendNewInputRowtoTFOOT (wettbewerber, kriterien, tableData, new_arr_element) {
+    //Add tr with input field to table
+    var tfoot = document.getElementById("tfoot");
+    var tr = document.createElement("tr")
+    tr.id = wettbewerber.length;
+    for (x=0; x<kriterien.length; x++){
+      var td = document.createElement("td");
+      td.id = new_arr_element + "_" + kriterien[x];
+      td.className = new_arr_element + " " + kriterien[x];
+      if(x>0){
+        td.className += " number";
+      } else {
+        var input = document.createElement("input");
+        input.id = "competitor_input";
+        input.setAttribute("type", "text");
+        input.setAttribute("placeholder", "+ Add Page");
+        td.appendChild(input);
+      }
+      tr.appendChild(td);
+      tableData[new_arr_element][kriterien[x]] = td;
+    }
+    tfoot.appendChild(tr);
+    input.focus();
+  }
+  
+  function fillTableRow (page_name, tableData) {
+    //Call Facebook Functions for one wettbewerber
+    appendMostSuccessfulPost(page_name);
+    fillPage(page_name, tableData);
+    fillFanCount(page_name, tableData);
+    fillPosts_Count(page_name, tableData);
+    fillMost_Successful_Post_Likes(page_name, tableData);
+    fillAvg_Likes_per_Post(page_name, tableData);
+    fillAvg_Engagement_Rate_per_Post(page_name, tableData);
+  }
+  
+  function fillTable (wettbewerber, tableData) {
+    //Call Facebook Functions for all wettbewerber
+    for (i = 0; i < wettbewerber.length - 1; i++) {
+      appendMostSuccessfulPost(wettbewerber[i]);
+      fillPage(wettbewerber[i], tableData);
+      fillFanCount(wettbewerber[i], tableData);
+      fillPosts_Count(wettbewerber[i], tableData);
+      fillMost_Successful_Post_Likes(wettbewerber[i], tableData);
+      fillAvg_Likes_per_Post(wettbewerber[i], tableData);
+      fillAvg_Engagement_Rate_per_Post(wettbewerber[i], tableData);
+    };
+  }
+  
   //Create Table:
   var tableData = createTable("containerTable", wettbewerber, kriterien);
   
@@ -392,6 +474,54 @@ $(document).ready(function(){
       }
     });
     
+    //Check Login Status and load data if connected
+    FB.getLoginStatus(function(response) {
+      if (response.status === 'connected') {
+        // Logged into your app and Facebook.
+        //Hide Facebook Login button:
+        $("#fb-login").hide();
+        var access_token = response.authResponse.accessToken;
+        fillTable (wettbewerber, tableData);
+        //If Enter Press in Input Field of Table:
+        $(document).on("keyup", "#competitor_input", function(event){
+        //$("#competitor_input").keyup(function(event){
+          if(event.which == 13){
+            var new_input = $("#competitor_input").val()
+            if (tableData.hasOwnProperty(new_input)){
+              //If User enters existing Channel Name:
+              $("#competitor_input").blur();
+              alert("Diese Page ist in der Tabelle bereits enthalten.");
+            } else {
+              //If User enters new Channel Name:
+              //Change td.ids to last wettbewerber
+              changeTDData (wettbewerber, kriterien, tableData, new_input);
+              //Correct tableData Object:
+              tableData[new_input] = tableData["new_competitor"];
+              delete tableData["new_competitor"]
+              //Call Facebook Functions for last wettbewerber
+              fillTableRow (wettbewerber[wettbewerber.length-1], tableData);
+              //Move Input Row from tfoot to tbody
+              appendNewInuptTRtoTBODY (wettbewerber, kriterien, tableData, new_input);
+              //Add "new_competitor" to wettbewerber
+              var new_arr_element = "new_competitor"
+              wettbewerber.push(new_arr_element);
+              //Update tableData Object:
+              tableData[new_arr_element] = {};
+              //Add tr with input field to table
+              appendNewInputRowtoTFOOT (wettbewerber, kriterien, tableData, new_arr_element);
+            }
+          }
+        });
+      } else if (response.status === 'not_authorized') {
+        // The person is logged into Facebook, but not your app.
+        $("#fb-logout").hide();
+      } else {
+        // The person is not logged into Facebook, so we're not sure if
+        // they are logged into this app or not.
+        $("#fb-logout").hide();
+      }
+    }
+    
     var btnFB = $("#fb-login");
     var loginStatus = $("#loginStatus");
     btnFB.click(function(){
@@ -404,21 +534,7 @@ $(document).ready(function(){
             if (response.status === 'connected') {
               //console.log(response.authResponse.accessToken);
               var access_token = response.authResponse.accessToken;
-              for (i = 0; i < wettbewerber.length - 1; i++) {
-                /*
-                createPageDiv(wettbewerber[i]);
-                appendHeader(wettbewerber[i], wettbewerber[i]);
-                appendFanCount(wettbewerber[i]);
-                appendPostCount(wettbewerber[i]);
-                */
-                appendMostSuccessfulPost(wettbewerber[i]);
-                fillPage(wettbewerber[i], tableData);
-                fillFanCount(wettbewerber[i], tableData);
-                fillPosts_Count(wettbewerber[i], tableData);
-                fillMost_Successful_Post_Likes(wettbewerber[i], tableData);
-                fillAvg_Likes_per_Post(wettbewerber[i], tableData);
-                fillAvg_Engagement_Rate_per_Post(wettbewerber[i], tableData);
-              };
+              fillTable (wettbewerber, tableData);
               //If Enter Press in Input Field of Table:
               $(document).on("keyup", "#competitor_input", function(event){
               //$("#competitor_input").keyup(function(event){
@@ -431,76 +547,21 @@ $(document).ready(function(){
                   } else {
                     //If User enters new Channel Name:
                     //Change td.ids to last wettbewerber
-                    for (x=0; x<kriterien.length; x++) {
-                      var td = tableData["new_competitor"][kriterien[x]]
-                      //Set Input Text As last wettbewerber:
-                      wettbewerber[wettbewerber.length-1] = new_input
-                      td.id = new_input + "_" + kriterien[x];
-                      td.className = new_input + " " + kriterien[x];
-                      if(x>0){
-                        td.className += " number";
-                      }
-                    }
+                    changeTDData (wettbewerber, kriterien, tableData, new_input);
                     //Correct tableData Object:
                     tableData[new_input] = tableData["new_competitor"];
                     delete tableData["new_competitor"]
                     //Call Facebook Functions for last wettbewerber
-                    /*
-                    createPageDiv(wettbewerber[wettbewerber.length-1]);
-                    appendHeader(wettbewerber[wettbewerber.length-1], wettbewerber[wettbewerber.length-1]);
-                    appendFanCount(wettbewerber[wettbewerber.length-1]);
-                    appendPostCount(wettbewerber[wettbewerber.length-1]);
-                    */
-                    appendMostSuccessfulPost(wettbewerber[wettbewerber.length-1]);
-                    fillPage(wettbewerber[wettbewerber.length-1], tableData);
-                    fillFanCount(wettbewerber[wettbewerber.length-1], tableData);
-                    fillPosts_Count(wettbewerber[wettbewerber.length-1], tableData);
-                    fillMost_Successful_Post_Likes(wettbewerber[wettbewerber.length-1], tableData);
-                    fillAvg_Likes_per_Post(wettbewerber[wettbewerber.length-1], tableData);
-                    fillAvg_Engagement_Rate_per_Post(wettbewerber[wettbewerber.length-1], tableData);
-                    //Append every td tfoot to new tr:
-                    var new_tr = document.createElement("tr");
-                    new_tr.id = wettbewerber.length + "_new";
-                    for (x=0; x<kriterien.length; x++) {
-                      var new_td = tableData[new_input][kriterien[x]];
-                      new_tr.appendChild(new_td);
-                      tableData[new_input][kriterien[x]] = new_td;
-                    }
-                    //Append new tr to tbody
-                    var tbody = document.getElementById("tbody");
-                    tbody.appendChild(new_tr);
-                    //Delete old tr from tfoot
-                    var old_tr = document.getElementById(wettbewerber.length)
-                    old_tr.parentNode.removeChild(old_tr);
-                    //Correct id of new tr
-                    new_tr.id = wettbewerber.length
+                    fillTableRow (wettbewerber[wettbewerber.length-1], tableData);
+                    //Move Input Row from tfoot to tbody
+                    appendNewInuptTRtoTBODY (wettbewerber, kriterien, tableData, new_input);
                     //Add "new_competitor" to wettbewerber
                     var new_arr_element = "new_competitor"
                     wettbewerber.push(new_arr_element);
                     //Update tableData Object:
                     tableData[new_arr_element] = {};
                     //Add tr with input field to table
-                    var tfoot = document.getElementById("tfoot");
-                    var tr = document.createElement("tr")
-                    tr.id = wettbewerber.length;
-                    for (x=0; x<kriterien.length; x++){
-                      var td = document.createElement("td");
-                      td.id = new_arr_element + "_" + kriterien[x];
-                      td.className = new_arr_element + " " + kriterien[x];
-                      if(x>0){
-                        td.className += " number";
-                      } else {
-                        var input = document.createElement("input");
-                        input.id = "competitor_input";
-                        input.setAttribute("type", "text");
-                        input.setAttribute("placeholder", "+ Add Page");
-                        td.appendChild(input);
-                      }
-                      tr.appendChild(td);
-                      tableData[new_arr_element][kriterien[x]] = td;
-                    }
-                    tfoot.appendChild(tr);
-                    input.focus();
+                    appendNewInputRowtoTFOOT (wettbewerber, kriterien, tableData, new_arr_element);
                   }
                 }
               });
