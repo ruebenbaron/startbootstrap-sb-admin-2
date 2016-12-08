@@ -529,7 +529,13 @@ $(document).ready(function(){
       } else {
         // The person is not logged into Facebook, so we're not sure if
         // they are logged into this app or not.
-        //$("#fb-logout").hide();
+        FB.login(function(response){
+          if (response.status === 'connected') {
+            // Logged into your app and Facebook.
+            //loginStatus.text("Succesfully logged in.");
+            handleLoggedIn (response, wettbewerber, kriterien, tableData);
+          }
+        }, {auth_type: 'reauthenticate'})
       }
     });
     
