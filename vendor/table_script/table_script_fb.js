@@ -480,6 +480,7 @@ $(document).ready(function(){
         // Logged into your app and Facebook.
         //Hide Facebook Login button:
         $("#fb-login").hide();
+        $("#fb-logout").show();
         var access_token = response.authResponse.accessToken;
         fillTable (wettbewerber, tableData);
         //If Enter Press in Input Field of Table:
@@ -514,11 +515,11 @@ $(document).ready(function(){
         });
       } else if (response.status === 'not_authorized') {
         // The person is logged into Facebook, but not your app.
-        $("#fb-logout").hide();
+        //$("#fb-logout").hide();
       } else {
         // The person is not logged into Facebook, so we're not sure if
         // they are logged into this app or not.
-        $("#fb-logout").hide();
+        //$("#fb-logout").hide();
       }
     });
     
@@ -530,6 +531,7 @@ $(document).ready(function(){
           // Logged into your app and Facebook.
           loginStatus.text("Succesfully logged in.");
           btnFB.hide();
+          $("#fb-logout").show();
           FB.getLoginStatus(function(response) {
             if (response.status === 'connected') {
               //console.log(response.authResponse.accessToken);
