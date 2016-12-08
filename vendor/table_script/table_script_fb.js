@@ -520,7 +520,7 @@ $(document).ready(function(){
         // they are logged into this app or not.
         $("#fb-logout").hide();
       }
-    }
+    });
     
     var btnFB = $("#fb-login");
     var loginStatus = $("#loginStatus");
