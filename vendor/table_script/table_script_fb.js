@@ -497,7 +497,8 @@ $(document).ready(function(){
     FB.init({
       appId      : '339440106419025',
       xfbml      : true,
-      version    : 'v2.8'
+      version    : 'v2.8',
+      cookie     : true
     });
 
     var btnDetails = $("#btnDetails");
@@ -535,7 +536,7 @@ $(document).ready(function(){
             //loginStatus.text("Succesfully logged in.");
             handleLoggedIn (response, wettbewerber, kriterien, tableData);
           }
-        }, {auth_type: 'reauthenticate'})
+        })
       }
     });
     
