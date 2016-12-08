@@ -451,6 +451,44 @@ $(document).ready(function(){
     };
   }
   
+  function handleLoggedIn (response, wettbewerber, kriterien, tableData) {
+    //Hide Facebook Login button:
+    $("#fb-login").hide();
+    $("#fb-logout").show();
+    var access_token = response.authResponse.accessToken;
+    fillTable (wettbewerber, tableData);
+    //If Enter Press in Input Field of Table:
+    $(document).on("keyup", "#competitor_input", function(event){
+    //$("#competitor_input").keyup(function(event){
+      if(event.which == 13){
+        var new_input = $("#competitor_input").val()
+        if (tableData.hasOwnProperty(new_input)){
+          //If User enters existing Channel Name:
+          $("#competitor_input").blur();
+          alert("Diese Page ist in der Tabelle bereits enthalten.");
+        } else {
+          //If User enters new Channel Name:
+          //Change td.ids to last wettbewerber
+          changeTDData (wettbewerber, kriterien, tableData, new_input);
+          //Correct tableData Object:
+          tableData[new_input] = tableData["new_competitor"];
+          delete tableData["new_competitor"]
+          //Call Facebook Functions for last wettbewerber
+          fillTableRow (wettbewerber[wettbewerber.length-1], tableData);
+          //Move Input Row from tfoot to tbody
+          appendNewInuptTRtoTBODY (wettbewerber, kriterien, tableData, new_input);
+          //Add "new_competitor" to wettbewerber
+          var new_arr_element = "new_competitor"
+          wettbewerber.push(new_arr_element);
+          //Update tableData Object:
+          tableData[new_arr_element] = {};
+          //Add tr with input field to table
+          appendNewInputRowtoTFOOT (wettbewerber, kriterien, tableData, new_arr_element);
+        }
+      }
+    });
+  }
+  
   //Create Table:
   var tableData = createTable("containerTable", wettbewerber, kriterien);
   
@@ -478,44 +516,16 @@ $(document).ready(function(){
     FB.getLoginStatus(function(response) {
       if (response.status === 'connected') {
         // Logged into your app and Facebook.
-        //Hide Facebook Login button:
-        $("#fb-login").hide();
-        $("#fb-logout").show();
-        var access_token = response.authResponse.accessToken;
-        fillTable (wettbewerber, tableData);
-        //If Enter Press in Input Field of Table:
-        $(document).on("keyup", "#competitor_input", function(event){
-        //$("#competitor_input").keyup(function(event){
-          if(event.which == 13){
-            var new_input = $("#competitor_input").val()
-            if (tableData.hasOwnProperty(new_input)){
-              //If User enters existing Channel Name:
-              $("#competitor_input").blur();
-              alert("Diese Page ist in der Tabelle bereits enthalten.");
-            } else {
-              //If User enters new Channel Name:
-              //Change td.ids to last wettbewerber
-              changeTDData (wettbewerber, kriterien, tableData, new_input);
-              //Correct tableData Object:
-              tableData[new_input] = tableData["new_competitor"];
-              delete tableData["new_competitor"]
-              //Call Facebook Functions for last wettbewerber
-              fillTableRow (wettbewerber[wettbewerber.length-1], tableData);
-              //Move Input Row from tfoot to tbody
-              appendNewInuptTRtoTBODY (wettbewerber, kriterien, tableData, new_input);
-              //Add "new_competitor" to wettbewerber
-              var new_arr_element = "new_competitor"
-              wettbewerber.push(new_arr_element);
-              //Update tableData Object:
-              tableData[new_arr_element] = {};
-              //Add tr with input field to table
-              appendNewInputRowtoTFOOT (wettbewerber, kriterien, tableData, new_arr_element);
-            }
-          }
-        });
+        handleLoggedIn (response, wettbewerber, kriterien, tableData);
       } else if (response.status === 'not_authorized') {
         // The person is logged into Facebook, but not your app.
-        //$("#fb-logout").hide();
+        FB.login(function(response){
+          if (response.status === 'connected') {
+            // Logged into your app and Facebook.
+            //loginStatus.text("Succesfully logged in.");
+            handleLoggedIn (response, wettbewerber, kriterien, tableData);
+          }
+        }, {auth_type: 'reauthenticate'})
       } else {
         // The person is not logged into Facebook, so we're not sure if
         // they are logged into this app or not.
@@ -529,49 +539,16 @@ $(document).ready(function(){
       FB.login(function(response){
         if (response.status === 'connected') {
           // Logged into your app and Facebook.
-          loginStatus.text("Succesfully logged in.");
-          btnFB.hide();
-          $("#fb-logout").show();
-          FB.getLoginStatus(function(response) {
-            if (response.status === 'connected') {
-              //console.log(response.authResponse.accessToken);
-              var access_token = response.authResponse.accessToken;
-              fillTable (wettbewerber, tableData);
-              //If Enter Press in Input Field of Table:
-              $(document).on("keyup", "#competitor_input", function(event){
-              //$("#competitor_input").keyup(function(event){
-                if(event.which == 13){
-                  var new_input = $("#competitor_input").val()
-                  if (tableData.hasOwnProperty(new_input)){
-                    //If User enters existing Channel Name:
-                    $("#competitor_input").blur();
-                    alert("Diese Page ist in der Tabelle bereits enthalten.");
-                  } else {
-                    //If User enters new Channel Name:
-                    //Change td.ids to last wettbewerber
-                    changeTDData (wettbewerber, kriterien, tableData, new_input);
-                    //Correct tableData Object:
-                    tableData[new_input] = tableData["new_competitor"];
-                    delete tableData["new_competitor"]
-                    //Call Facebook Functions for last wettbewerber
-                    fillTableRow (wettbewerber[wettbewerber.length-1], tableData);
-                    //Move Input Row from tfoot to tbody
-                    appendNewInuptTRtoTBODY (wettbewerber, kriterien, tableData, new_input);
-                    //Add "new_competitor" to wettbewerber
-                    var new_arr_element = "new_competitor"
-                    wettbewerber.push(new_arr_element);
-                    //Update tableData Object:
-                    tableData[new_arr_element] = {};
-                    //Add tr with input field to table
-                    appendNewInputRowtoTFOOT (wettbewerber, kriterien, tableData, new_arr_element);
-                  }
-                }
-              });
-            }
-          });
+          handleLoggedIn (response, wettbewerber, kriterien, tableData);
         } else if (response.status === 'not_authorized') {
           // The person is logged into Facebook, but not your app.
-          //loginStatus.text("Please login to the app.");
+          FB.login(function(response){
+            if (response.status === 'connected') {
+              // Logged into your app and Facebook.
+              //loginStatus.text("Succesfully logged in.");
+              handleLoggedIn (response, wettbewerber, kriterien, tableData);
+            }
+          }, {auth_type: 'reauthenticate'})
         } else {
           // The person is not logged into Facebook, so we're not sure if
           // they are logged into this app or not.
